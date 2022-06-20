@@ -1,34 +1,38 @@
-import React, { useState } from 'react';
+import useNewSubForm from '../hooks/useNewsSubForm';
 import { Sub } from '../types';
-
-interface FormState {
-  inputValues: Sub;
-}
 
 interface FormProps {
   onNewSub: (newSub: Sub) => void;
 }
 
 const Form = ({ onNewSub }: FormProps) => {
-  const [inputValues, setInputValues] = useState<FormState['inputValues']>({
-    nick: '',
-    subMonths: 0,
-    avatar: '',
-    description: '',
-  });
+  // const [inputValues, setInputValues] =
+  //   useState<FormState['inputValues']>(INITIAL_STATE);
+
+  const [inputValues, dispatch] = useNewSubForm();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     onNewSub(inputValues);
+    dispatch({ type: 'clear' });
   };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    setInputValues({
-      ...inputValues,
-      [e.target.name]: e.target.value,
+    const { name, value } = e.target;
+
+    dispatch({
+      type: 'change_value',
+      payload: {
+        inputName: name,
+        inputValue: value,
+      },
     });
+  };
+
+  const handleClear = () => {
+    dispatch({ type: 'clear' });
   };
 
   return (
@@ -61,7 +65,10 @@ const Form = ({ onNewSub }: FormProps) => {
           name="description"
           placeholder="description"
         />
-        <button>Save new sub!</button>
+        <button onClick={handleClear} type="button">
+          Clear the form
+        </button>
+        <button type="submit">Save new sub!</button>
       </form>
     </div>
   );
